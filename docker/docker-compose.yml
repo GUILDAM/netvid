@@ -10,6 +10,8 @@ services:
       - "8761:8761"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - redis-net
 
   # --------------
   # zuul proxy
@@ -22,6 +24,8 @@ services:
       - discovery
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - redis-net
 
   # --------------
   # support
@@ -34,6 +38,11 @@ services:
       - discovery
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - RHOST=redis
+    networks:
+      - redis-net
+    depends_on:
+      - redis
 
   # --------------
   # cataloger-manager
@@ -46,6 +55,11 @@ services:
       - discovery
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - RHOST=redis
+    networks:
+      - redis-net
+    depends_on:
+      - redis
 
   # --------------
   # cataloger-business
@@ -58,5 +72,28 @@ services:
       - discovery
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - RHOST=redis
+    networks:
+      - redis-net
+    depends_on:
+      - redis
+  # --------------
+  # Redis
+  # --------------    
+  redis:
+    image: redis:4.0.5-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    links:
+      - discovery
+    networks:
+      - redis-net
+    volumes:
+      - redis-data:/data
+
+networks:
+    redis-net:
+volumes:
+    redis-data:
 
 
